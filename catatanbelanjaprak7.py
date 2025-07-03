@@ -14,6 +14,7 @@ class Belanja(Base):
     id = Column(Integer, primary_key=True)
     nama_barang = Column(String)
     jumlah = Column(Integer)
+    kategori = Column(String)
 
 # Buat tabel (jika belum ada)
 Base.metadata.create_all(engine)
@@ -27,7 +28,8 @@ def tambah_barang():
             break
         try:
             jumlah = int(input("Jumlah: "))
-            barang = Belanja(nama_barang=nama, jumlah=jumlah)
+            kategori = input("Kategori barang (contoh: Makanan, Peralatan, dll): ")  # ← input kategori
+            barang = Belanja(nama_barang=nama, jumlah=jumlah, kategori=kategori)
             session.add(barang)
             session.commit()
             print("Barang berhasil ditambahkan!\n")
@@ -41,7 +43,7 @@ def tampilkan_daftar():
     else:
         print("\nDaftar Belanja:")
         for i, b in enumerate(daftar, start=1):
-            print(f"{i}. {b.nama_barang} - {b.jumlah} (ID: {b.id})")
+            print(f"{i}. {b.nama_barang} - {b.jumlah} - Kategori: {b.kategori} (ID: {b.id})")
         print()
 
 def ubah_jumlah():
@@ -88,17 +90,39 @@ def hapus_barang():
         print("Barang berhasil dihapus!\n")
     except Exception as e:
         print("Terjadi kesalahan:", e)
+
 def cari_barang():
-    keyword = input("Masukkan nama barang yang ingin dicari: ")
-    hasil = session.query(Belanja).filter(Belanja.nama_barang.ilike(f"%{keyword}%")).all()
-    
+    print("=== Pencarian Barang ===")
+    print("1. Berdasarkan nama")
+    print("2. Berdasarkan kategori")
+    print("3. Berdasarkan nama dan kategori")
+    pilihan = input("Pilih jenis pencarian (1-3): ")
+
+    if pilihan == "1":
+        keyword = input("Masukkan nama barang: ")
+        hasil = session.query(Belanja).filter(Belanja.nama_barang.ilike(f"%{keyword}%")).all()
+    elif pilihan == "2":
+        kategori = input("Masukkan kategori: ")
+        hasil = session.query(Belanja).filter(Belanja.kategori.ilike(f"%{kategori}%")).all()
+    elif pilihan == "3":
+        keyword = input("Masukkan nama barang: ")
+        kategori = input("Masukkan kategori: ")
+        hasil = session.query(Belanja).filter(
+            Belanja.nama_barang.ilike(f"%{keyword}%"),
+            Belanja.kategori.ilike(f"%{kategori}%")
+        ).all()
+    else:
+        print("Pilihan tidak valid.\n")
+        return
+
     if not hasil:
         print("Barang tidak ditemukan.\n")
     else:
         print("\nHasil Pencarian:")
         for i, b in enumerate(hasil, start=1):
-            print(f"{i}. {b.nama_barang} - {b.jumlah} (ID: {b.id})")
+            print(f"{i}. {b.nama_barang} - {b.jumlah} - Kategori: {b.kategori} (ID: {b.id})")
         print()
+
 # Menu Utama
 while True:
     print("====== Catatan Belanja ======")
