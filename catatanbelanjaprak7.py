@@ -88,7 +88,17 @@ def hapus_barang():
         print("Barang berhasil dihapus!\n")
     except Exception as e:
         print("Terjadi kesalahan:", e)
-
+def cari_barang():
+    keyword = input("Masukkan nama barang yang ingin dicari: ")
+    hasil = session.query(Belanja).filter(Belanja.nama_barang.ilike(f"%{keyword}%")).all()
+    
+    if not hasil:
+        print("Barang tidak ditemukan.\n")
+    else:
+        print("\nHasil Pencarian:")
+        for i, b in enumerate(hasil, start=1):
+            print(f"{i}. {b.nama_barang} - {b.jumlah} (ID: {b.id})")
+        print()
 # Menu Utama
 while True:
     print("====== Catatan Belanja ======")
@@ -96,10 +106,11 @@ while True:
     print("2. Tampilkan Daftar")
     print("3. Ubah Jumlah Barang")
     print("4. Hapus Barang")
-    print("5. Keluar")
-    
-    pilihan = input("Pilih menu (1-5): ")
-    
+    print("5. Cari Barang")  # ← Tambahan menu pencarian
+    print("6. Keluar")
+
+    pilihan = input("Pilih menu (1-6): ")
+
     if pilihan == "1":
         tambah_barang()
     elif pilihan == "2":
@@ -108,8 +119,10 @@ while True:
         ubah_jumlah()
     elif pilihan == "4":
         hapus_barang()
-    elif pilihan == "5":
+    elif pilihan == "5":  # ← Hubungkan ke fungsi baru
+        cari_barang()
+    elif pilihan == "6":
         print("Terima kasih, sampai jumpa!")
         break
     else:
-        print("Pilihan tidak valid.\n")
+     print("Pilihan tidak valid.\n")
